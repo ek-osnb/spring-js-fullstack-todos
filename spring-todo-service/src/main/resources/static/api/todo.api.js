@@ -1,4 +1,4 @@
-const BASE_URL_TODOS = "http://localhost:8080/api/todos";
+const BASE_URL_TODOS = "/api/todos";
 
 export async function fetchTodos() {
     try {
