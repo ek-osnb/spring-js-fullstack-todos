@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", initApp);
 
-const BASE_URL_TODOS = "https://jsonplaceholder.typicode.com/todos";
+// const BASE_URL_TODOS = "https://jsonplaceholder.typicode.com/todos";
+const BASE_URL_TODOS = "http://localhost:8080/api/todos";
 
 let todosData = [];
 let refData = [];
