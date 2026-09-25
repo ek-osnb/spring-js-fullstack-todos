@@ -13,6 +13,17 @@ export async function fetchTodos() {
     }
 }
 
+export async function fetchTodoById(id) {
+    if (!id) {
+        return;
+    }
+    const response = await fetch(`${BASE_URL_TODOS}/${id}`);
+    if (!response.ok) {
+        throw new Error(`Failed to fetch todos: ${response.status}`);
+    }
+    return await response.json();
+}
+
 export async function addTodo(todo) {
     try {
         const response = await fetch(BASE_URL_TODOS, {

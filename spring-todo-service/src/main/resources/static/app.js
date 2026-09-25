@@ -141,6 +141,11 @@ async function handleTableClick(event) {
     const row = event.target.closest("tr");
     const id = row.getAttribute("data-id");
 
+    if (action === null) {
+        // window.location.href="todos.html?id="+id;
+        window.location.href = `todos.html?id=${id}`;
+    }
+
     if (action === "delete") {
         await deleteTodo(id);
         await refreshTodos();
