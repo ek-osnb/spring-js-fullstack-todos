@@ -1,7 +1,9 @@
+import { fetchTodos, addTodo, updateTodo, deleteTodo } from "./api/todo.api.js"
+import { sortBy } from "./utils/sorting.js"
+
 document.addEventListener("DOMContentLoaded", initApp);
 
 // const BASE_URL_TODOS = "https://jsonplaceholder.typicode.com/todos";
-const BASE_URL_TODOS = "http://localhost:8080/api/todos";
 
 let todosData = [];
 let refData = [];
@@ -18,8 +20,6 @@ async function initApp() {
     document.querySelector("#todoTableHeader").addEventListener("click", handleHeaderClick);
     document.querySelector("#searchBox").addEventListener("input", handleSearchInput);
 }
-
-(e) => handleSearchInput(e, param2)
 
 function handleSearchInput(e) {
     const searchTerm = e.target.value;
@@ -74,44 +74,6 @@ function updateSortIndicator() {
 
 }
 
-function sortBy(key, isAsc = true) {
-    return (a, b) => {
-
-        const aVal = a[key];
-        const bVal = b[key];
-
-        if (typeof aVal === "string" && typeof bVal === "string") {
-            const result = aVal.localeCompare(bVal);
-            // if (isAsc) {
-            //     return result;
-            // } else {
-            //     return -result;
-            // }
-            return isAsc ? result : -result;
-        }
-
-        if (typeof aVal === "number" && typeof bVal === "number") {
-            const result = aVal - bVal;
-            return isAsc ? result : -result;
-        }
-
-        return 0;
-    }
-}
-
-async function fetchTodos() {
-    try {
-        const response = await fetch(BASE_URL_TODOS);
-        if (!response.ok) {
-            throw new Error(`Failed to fetch todos: ${response.status}`);
-        }
-        return await response.json();
-    } catch (error) {
-        console.error(error);
-        return [];
-    }
-}
-
 function displayTodos(todos) {
     const tableBody = document.querySelector("#todoTableBody");
     tableBody.innerHTML = ""; // Clear existing rows
@@ -150,57 +112,6 @@ function renderTodoRow(todo) {
     actionsCell.append(editButton, deleteButton);
     row.append(titleCell, userIdCell, completedCell, actionsCell);
     tableBody.appendChild(row);
-}
-
-async function addTodo(todo) {
-    try {
-        const response = await fetch(BASE_URL_TODOS, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(todo)
-        });
-        if (!response.ok) {
-            throw new Error(`Failed to add todo: ${response.status}`);
-        }
-        return await response.json();
-    } catch (error) {
-        console.error(error);
-    }
-}
-
-async function updateTodo(id, updatedTodo) {
-    try {
-        const response = await fetch(`${BASE_URL_TODOS}/${id}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(updatedTodo)
-        });
-        if (!response.ok) {
-            throw new Error(`Failed to update todo: ${response.status}`);
-        }
-        return await response.json();
-    } catch (error) {
-        console.error(error);
-    }
-}
-
-async function deleteTodo(id) {
-    try {
-        const response = await fetch(`${BASE_URL_TODOS}/${id}`, {
-            method: "DELETE"
-        });
-        if (!response.ok) {
-            throw new Error(`Failed to delete todo: ${response.status}`);
-        }
-        return true;
-    } catch (error) {
-        console.error(error);
-        return false;
-    }
 }
 
 async function handleFormSubmit(event) {
