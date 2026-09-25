@@ -3,6 +3,8 @@ document.addEventListener("DOMContentLoaded", initApp);
 const BASE_URL_TODOS = "https://jsonplaceholder.typicode.com/todos";
 
 let todosData = [];
+let refData = [];
+
 const sortState = {
     key: "title",
     isAsc: true
@@ -10,14 +12,24 @@ const sortState = {
 
 async function initApp() {
     await refreshTodos();
-
     document.querySelector("#todoForm").addEventListener("submit", handleFormSubmit);
     document.querySelector("#todoTableBody").addEventListener("click", handleTableClick);
     document.querySelector("#todoTableHeader").addEventListener("click", handleHeaderClick);
+    document.querySelector("#searchBox").addEventListener("input", handleSearchInput);
+}
+
+(e) => handleSearchInput(e, param2)
+
+function handleSearchInput(e) {
+    const searchTerm = e.target.value;
+    console.log("BEFORE:", todosData.length);
+    todosData = refData.filter(t => t.title.includes(searchTerm));
+    sortAndDisplay();
 }
 
 async function refreshTodos() {
     todosData = await fetchTodos();
+    refData = todosData;
     displayTodos(todosData);
 }
 
