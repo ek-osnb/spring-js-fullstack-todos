@@ -1,20 +1,6 @@
-const BASE_URL_TODOS = "/api/todos";
+import { ensureOk } from "./http.js";
 
-async function ensureOk(response, fallbackMessage) {
-    if (response.ok) {
-        return;
-    }
-    let message = `${fallbackMessage}: ${response.status}`;
-    try {
-        const problem = await response.json();
-        if (problem.detail) {
-            message = problem.detail;
-        }
-    } catch {
-        // response body was not JSON - keep the fallback message
-    }
-    throw new Error(message);
-}
+const BASE_URL_TODOS = "/api/todos";
 
 export async function fetchTodos() {
     const response = await fetch(BASE_URL_TODOS);
