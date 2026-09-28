@@ -80,8 +80,6 @@ function updateSortIndicator() {
     // sort-title eller sort-userid
     const span = document.querySelector(`#sort-${sortState.key}`);
     span.textContent = sortState.isAsc ? asc : desc;
-
-
 }
 
 function displayTodos(todos) {
@@ -174,13 +172,14 @@ async function handleTableClick(event) {
         }
         await refreshTodos();
     } else if (action === "edit") {
-        const title = row.children[0].textContent;
-        const userId = row.children[1].textContent;
-        const completed = row.children[2].textContent === "Yes";
+        const todo = allTodos.find(t => String(t.id) === id);
+        if (!todo) {
+            return;
+        }
 
-        document.querySelector("#todoId").value = id;
-        document.querySelector("#todoTitle").value = title;
-        document.querySelector("#userId").value = userId;
-        document.querySelector("#completed").checked = completed;
+        document.querySelector("#todoId").value = todo.id;
+        document.querySelector("#todoTitle").value = todo.title;
+        document.querySelector("#userId").value = todo.userId;
+        document.querySelector("#completed").checked = todo.completed;
     }
 }
