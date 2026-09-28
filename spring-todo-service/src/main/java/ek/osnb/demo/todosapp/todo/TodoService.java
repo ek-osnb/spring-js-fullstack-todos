@@ -26,6 +26,9 @@ public class TodoService {
     }
 
     public TodoView create(CreateTodoRequest request) {
+        if (request.userId() == null) {
+            throw new IllegalArgumentException("User id cannot be null");
+        }
         User user = userService.findEntityById(request.userId());
 
         Todo todo = Todo.create(

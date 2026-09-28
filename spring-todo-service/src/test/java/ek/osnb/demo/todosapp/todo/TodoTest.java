@@ -59,7 +59,7 @@ class TodoTest {
     }
 
     @Test
-    void createShouldRejectNullTitleOrUser() {
+    void createShouldRejectBlankTitleOrNullUser() {
         User user = User.create(
                 "Ada Lovelace",
                 "ada",
@@ -67,12 +67,13 @@ class TodoTest {
                 Address.of("Main St", "Copenhagen", "2100", "Denmark")
         );
 
-        assertThrows(NullPointerException.class, () -> Todo.create(null, user));
-        assertThrows(NullPointerException.class, () -> Todo.create("Write tests", null));
+        assertThrows(IllegalArgumentException.class, () -> Todo.create(null, user));
+        assertThrows(IllegalArgumentException.class, () -> Todo.create("   ", user));
+        assertThrows(IllegalArgumentException.class, () -> Todo.create("Write tests", null));
     }
 
     @Test
-    void updateTitleShouldRejectNull() {
+    void updateTitleShouldRejectNullOrBlank() {
         User user = User.create(
                 "Ada Lovelace",
                 "ada",
@@ -81,6 +82,7 @@ class TodoTest {
         );
         Todo todo = Todo.create("Write tests", user);
 
-        assertThrows(NullPointerException.class, () -> todo.updateTitle(null));
+        assertThrows(IllegalArgumentException.class, () -> todo.updateTitle(null));
+        assertThrows(IllegalArgumentException.class, () -> todo.updateTitle("   "));
     }
 }

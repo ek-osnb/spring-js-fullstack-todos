@@ -15,10 +15,12 @@
 
 <body>
     <h1 class="text-center">TODO CRUD</h1>
+    <div id="errorBox" class="alert alert-danger d-none" role="alert"></div>
+
     <form id="todoForm">
         <input type="hidden" id="todoId" name="id">
-        <input type="text" id="todoTitle" name="title" placeholder="Enter a todo">
-        <input type="text" id="userId" name="userId" placeholder="Enter user ID">
+        <input type="text" id="todoTitle" name="title" placeholder="Enter a todo" required>
+        <input type="number" id="userId" name="userId" placeholder="Enter user ID" min="1" required>
         <label for="completed">Completed</label>
         <input type="checkbox" id="completed" name="completed">
 

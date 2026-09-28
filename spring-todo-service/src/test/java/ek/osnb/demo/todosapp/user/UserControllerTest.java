@@ -65,6 +65,25 @@ class UserControllerTest {
     }
 
     @Test
+    void createShouldReturnBadRequestWhenServiceRejectsInput() throws Exception {
+        when(userService.create(new CreateUserRequest("Ada Lovelace", "ada", "ada@example.com", null)))
+                .thenThrow(new IllegalArgumentException("Address cannot be null"));
+
+        mockMvc.perform(post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "name": "Ada Lovelace",
+                                  "username": "ada",
+                                  "email": "ada@example.com"
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title").value("Invalid Request"))
+                .andExpect(jsonPath("$.detail").value("Address cannot be null"));
+    }
+
+    @Test
     void findByIdShouldReturnNotFoundWhenServiceThrows() throws Exception {
         when(userService.findById(99L)).thenThrow(new NotFoundException("User with id 99 not found"));
 

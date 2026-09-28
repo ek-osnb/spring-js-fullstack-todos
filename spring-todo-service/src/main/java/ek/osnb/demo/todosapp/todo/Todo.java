@@ -4,8 +4,6 @@ package ek.osnb.demo.todosapp.todo;
 import ek.osnb.demo.todosapp.user.User;
 import jakarta.persistence.*;
 
-import java.util.Objects;
-
 @Entity
 @Table(name = "todos")
 public class Todo {
@@ -22,8 +20,14 @@ public class Todo {
     }
 
     private Todo(String title, User user) {
-        this.title = Objects.requireNonNull(title);
-        this.user = Objects.requireNonNull(user);
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("Title cannot be null or blank");
+        }
+        if (user == null) {
+            throw new IllegalArgumentException("User cannot be null");
+        }
+        this.title = title;
+        this.user = user;
         this.completed = false;
     }
 
@@ -56,6 +60,9 @@ public class Todo {
     }
 
     public void updateTitle(String title) {
-        this.title = Objects.requireNonNull(title);
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("Title cannot be null or blank");
+        }
+        this.title = title;
     }
 }

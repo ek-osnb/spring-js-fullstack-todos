@@ -47,6 +47,23 @@ class TodoControllerTest {
     }
 
     @Test
+    void createShouldReturnBadRequestWhenServiceRejectsInput() throws Exception {
+        when(todoService.create(new CreateTodoRequest(null, 1L)))
+                .thenThrow(new IllegalArgumentException("Title cannot be null or blank"));
+
+        mockMvc.perform(post("/api/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "userId": 1
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title").value("Invalid Request"))
+                .andExpect(jsonPath("$.detail").value("Title cannot be null or blank"));
+    }
+
+    @Test
     void completeShouldReturnUpdatedTodo() throws Exception {
         when(todoService.complete(10L)).thenReturn(new TodoView(10L, 1L, "Write tests", true));
 

@@ -53,6 +53,12 @@ class TodoServiceTest {
     }
 
     @Test
+    void createShouldRejectNullUserId() {
+        assertThrows(IllegalArgumentException.class,
+                () -> todoService.create(new CreateTodoRequest("Write tests", null)));
+    }
+
+    @Test
     void findByIdShouldReturnView() {
         Todo todo = todo(11L, user(1L), "Write tests");
         when(todoRepository.findById(11L)).thenReturn(Optional.of(todo));

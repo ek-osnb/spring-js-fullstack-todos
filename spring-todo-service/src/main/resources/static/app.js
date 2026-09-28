@@ -3,10 +3,7 @@ import { sortBy } from "./utils/sorting.js"
 
 document.addEventListener("DOMContentLoaded", initApp);
 
-// const BASE_URL_TODOS = "https://jsonplaceholder.typicode.com/todos";
-
-let todosData = [];
-let refData = [];
+let allTodos = [];
 
 const sortState = {
     key: "title",
@@ -14,34 +11,48 @@ const sortState = {
 };
 
 async function initApp() {
-    await refreshTodos();
     document.querySelector("#todoForm").addEventListener("submit", handleFormSubmit);
     document.querySelector("#todoTableBody").addEventListener("click", handleTableClick);
     document.querySelector("#todoTableHeader").addEventListener("click", handleHeaderClick);
-    document.querySelector("#searchBox").addEventListener("input", handleSearchInput);
-}
-
-function handleSearchInput(e) {
-    const searchTerm = e.target.value;
-    console.log("BEFORE:", todosData.length);
-    todosData = refData.filter(t => t.title.includes(searchTerm));
-    sortAndDisplay();
+    document.querySelector("#searchBox").addEventListener("input", render);
+    await refreshTodos();
 }
 
 async function refreshTodos() {
-    todosData = await fetchTodos();
-    refData = todosData;
-    displayTodos(todosData);
+    try {
+        allTodos = await fetchTodos();
+    } catch (error) {
+        showError(error.message);
+        allTodos = [];
+    }
+    render();
 }
 
-function sortAndDisplay() {
-    todosData.sort(sortBy(sortState.key, sortState.isAsc));
-    displayTodos(todosData);
+// filter -> sort -> display
+function render() {
+    const searchTerm = document.querySelector("#searchBox").value.trim().toLowerCase();
+    const visibleTodos = allTodos
+        .filter(t => t.title.toLowerCase().includes(searchTerm))
+        .sort(sortBy(sortState.key, sortState.isAsc));
+    displayTodos(visibleTodos);
+    updateSortIndicator();
+}
+
+function showError(message) {
+    const errorBox = document.querySelector("#errorBox");
+    errorBox.textContent = message;
+    errorBox.classList.remove("d-none");
+}
+
+function clearError() {
+    const errorBox = document.querySelector("#errorBox");
+    errorBox.textContent = "";
+    errorBox.classList.add("d-none");
 }
 
 function handleHeaderClick(e) {
     const col = e.target.closest("th");
-    const key = col.getAttribute("data-sort-key");
+    const key = col?.getAttribute("data-sort-key");
     if (!key) {
         return;
     }
@@ -54,8 +65,7 @@ function handleHeaderClick(e) {
         sortState.key = key;
         sortState.isAsc = true;
     }
-    sortAndDisplay();
-    updateSortIndicator();
+    render();
 }
 
 function updateSortIndicator() {
@@ -124,12 +134,18 @@ async function handleFormSubmit(event) {
 
     const todoData = { title, userId, completed };
 
-    if (id) {
-        await updateTodo(id, todoData);
-    } else {
-        await addTodo(todoData);
+    try {
+        if (id) {
+            await updateTodo(id, todoData);
+        } else {
+            await addTodo(todoData);
+        }
+    } catch (error) {
+        showError(error.message);
+        return;
     }
 
+    clearError();
     event.target.reset();
     document.querySelector("#todoId").value = "";
 
@@ -139,15 +155,23 @@ async function handleFormSubmit(event) {
 async function handleTableClick(event) {
     const action = event.target.getAttribute("data-action");
     const row = event.target.closest("tr");
+    if (!row) {
+        return;
+    }
     const id = row.getAttribute("data-id");
 
     if (action === null) {
-        // window.location.href="todos.html?id="+id;
         window.location.href = `todos.html?id=${id}`;
+        return;
     }
 
     if (action === "delete") {
-        await deleteTodo(id);
+        try {
+            await deleteTodo(id);
+            clearError();
+        } catch (error) {
+            showError(error.message);
+        }
         await refreshTodos();
     } else if (action === "edit") {
         const title = row.children[0].textContent;

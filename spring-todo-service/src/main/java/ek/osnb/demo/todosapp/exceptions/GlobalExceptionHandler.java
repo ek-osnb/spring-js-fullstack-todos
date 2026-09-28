@@ -21,4 +21,12 @@ public class GlobalExceptionHandler {
         pd.setDetail(ex.getMessage());
         return pd;
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ProblemDetail handleIllegalArgumentException(IllegalArgumentException ex) {
+        ProblemDetail pd = ProblemDetail.forStatus(400);
+        pd.setTitle("Invalid Request");
+        pd.setDetail(ex.getMessage());
+        return pd;
+    }
 }

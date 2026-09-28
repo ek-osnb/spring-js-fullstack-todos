@@ -54,6 +54,13 @@ class UserServiceTest {
     }
 
     @Test
+    void createShouldRejectNullAddress() {
+        CreateUserRequest request = new CreateUserRequest("Ada Lovelace", "ada", "ada@example.com", null);
+
+        assertThrows(IllegalArgumentException.class, () -> userService.create(request));
+    }
+
+    @Test
     void createShouldRejectDuplicateUsername() {
         CreateUserRequest request = new CreateUserRequest(
                 "Ada Lovelace",

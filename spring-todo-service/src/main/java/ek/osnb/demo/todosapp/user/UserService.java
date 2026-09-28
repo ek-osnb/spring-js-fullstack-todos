@@ -20,6 +20,9 @@ public class UserService {
     }
 
     public UserView create(CreateUserRequest request) {
+        if (request.address() == null) {
+            throw new IllegalArgumentException("Address cannot be null");
+        }
         Address address = Address.of(
                 request.address().street(),
                 request.address().city(),
