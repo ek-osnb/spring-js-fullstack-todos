@@ -80,8 +80,8 @@ public class User {
     }
 
     public void changeEmail(String email) {
-        if (email == null) {
-            throw new IllegalArgumentException("Email cannot be null");
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("Email cannot be null or blank");
         }
         this.email = email;
     }

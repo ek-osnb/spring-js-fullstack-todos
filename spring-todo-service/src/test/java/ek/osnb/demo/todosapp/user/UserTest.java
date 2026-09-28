@@ -63,10 +63,11 @@ class UserTest {
     }
 
     @Test
-    void changeEmailShouldRejectNull() {
+    void changeEmailShouldRejectNullOrBlank() {
         Address address = Address.of("Main St", "Copenhagen", "2100", "Denmark");
         User user = User.create("Ada Lovelace", "ada", "ada@example.com", address);
 
         assertThrows(IllegalArgumentException.class, () -> user.changeEmail(null));
+        assertThrows(IllegalArgumentException.class, () -> user.changeEmail("   "));
     }
 }
