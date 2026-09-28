@@ -13,7 +13,7 @@ public class Todo {
     private String title;
     private boolean completed;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private User user;
 
     protected Todo() {
