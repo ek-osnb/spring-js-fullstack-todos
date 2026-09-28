@@ -1,9 +1,11 @@
-import { fetchTodos, addTodo, updateTodo, deleteTodo } from "./api/todo.api.js"
+import { fetchTodos, addTodo, updateTodo, deleteTodo, completeTodo, reopenTodo } from "./api/todo.api.js"
+import { fetchUsers } from "./api/user.api.js"
 import { sortBy } from "./utils/sorting.js"
 
 document.addEventListener("DOMContentLoaded", initApp);
 
 let allTodos = [];
+let usersById = new Map();
 
 const sortState = {
     key: "title",
@@ -15,12 +17,37 @@ async function initApp() {
     document.querySelector("#todoTableBody").addEventListener("click", handleTableClick);
     document.querySelector("#todoTableHeader").addEventListener("click", handleHeaderClick);
     document.querySelector("#searchBox").addEventListener("input", render);
+    document.querySelector("#cancelEdit").addEventListener("click", resetForm);
+    await loadUsers();
     await refreshTodos();
+}
+
+async function loadUsers() {
+    try {
+        const users = await fetchUsers();
+        usersById = new Map(users.map(u => [u.id, u]));
+    } catch (error) {
+        showError(error.message);
+        return;
+    }
+
+    const select = document.querySelector("#userId");
+    for (const user of usersById.values()) {
+        const option = document.createElement("option");
+        option.value = user.id;
+        option.textContent = user.username;
+        select.appendChild(option);
+    }
 }
 
 async function refreshTodos() {
     try {
-        allTodos = await fetchTodos();
+        const todos = await fetchTodos();
+        // Add the username so the table can display and sort by it
+        allTodos = todos.map(t => ({
+            ...t,
+            username: usersById.get(t.userId)?.username ?? String(t.userId)
+        }));
     } catch (error) {
         showError(error.message);
         allTodos = [];
@@ -77,7 +104,7 @@ function updateSortIndicator() {
         s.textContent = "";
     });
 
-    // sort-title eller sort-userid
+    // sort-title eller sort-username
     const span = document.querySelector(`#sort-${sortState.key}`);
     span.textContent = sortState.isAsc ? asc : desc;
 }
@@ -99,11 +126,16 @@ function renderTodoRow(todo) {
     const titleCell = document.createElement("td");
     titleCell.textContent = todo.title;
 
-    const userIdCell = document.createElement("td");
-    userIdCell.textContent = todo.userId;
+    const userCell = document.createElement("td");
+    userCell.textContent = todo.username;
 
     const completedCell = document.createElement("td");
-    completedCell.textContent = todo.completed ? "Yes" : "No";
+    const completedCheckbox = document.createElement("input");
+    completedCheckbox.type = "checkbox";
+    completedCheckbox.className = "form-check-input";
+    completedCheckbox.setAttribute("data-action", "toggle");
+    completedCheckbox.checked = todo.completed;
+    completedCell.appendChild(completedCheckbox);
 
     const actionsCell = document.createElement("td");
 
@@ -118,7 +150,7 @@ function renderTodoRow(todo) {
     deleteButton.textContent = "Delete";
 
     actionsCell.append(editButton, deleteButton);
-    row.append(titleCell, userIdCell, completedCell, actionsCell);
+    row.append(titleCell, userCell, completedCell, actionsCell);
     tableBody.appendChild(row);
 }
 
@@ -144,10 +176,20 @@ async function handleFormSubmit(event) {
     }
 
     clearError();
-    event.target.reset();
-    document.querySelector("#todoId").value = "";
-
+    resetForm();
     await refreshTodos();
+}
+
+function resetForm() {
+    document.querySelector("#todoForm").reset();
+    // reset() doesn't clear hidden inputs
+    document.querySelector("#todoId").value = "";
+    setEditMode(false);
+}
+
+function setEditMode(isEditing) {
+    document.querySelector("#submitButton").textContent = isEditing ? "Update Todo" : "Add Todo";
+    document.querySelector("#cancelEdit").classList.toggle("d-none", !isEditing);
 }
 
 async function handleTableClick(event) {
@@ -163,7 +205,23 @@ async function handleTableClick(event) {
         return;
     }
 
-    if (action === "delete") {
+    if (action === "toggle") {
+        try {
+            if (event.target.checked) {
+                await completeTodo(id);
+            } else {
+                await reopenTodo(id);
+            }
+            clearError();
+        } catch (error) {
+            showError(error.message);
+        }
+        // Refresh either way so the checkbox always matches the server
+        await refreshTodos();
+    } else if (action === "delete") {
+        if (!confirm("Delete this todo?")) {
+            return;
+        }
         try {
             await deleteTodo(id);
             clearError();
@@ -181,5 +239,6 @@ async function handleTableClick(event) {
         document.querySelector("#todoTitle").value = todo.title;
         document.querySelector("#userId").value = todo.userId;
         document.querySelector("#completed").checked = todo.completed;
+        setEditMode(true);
     }
 }

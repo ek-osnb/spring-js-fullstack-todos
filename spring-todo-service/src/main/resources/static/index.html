@@ -20,11 +20,14 @@
     <form id="todoForm">
         <input type="hidden" id="todoId" name="id">
         <input type="text" id="todoTitle" name="title" placeholder="Enter a todo" required>
-        <input type="number" id="userId" name="userId" placeholder="Enter user ID" min="1" required>
+        <select id="userId" name="userId" required>
+            <option value="">Choose user…</option>
+        </select>
         <label for="completed">Completed</label>
         <input type="checkbox" id="completed" name="completed">
 
-        <button type="submit" class="btn btn-primary">Add Todo</button>
+        <button type="submit" id="submitButton" class="btn btn-primary">Add Todo</button>
+        <button type="button" id="cancelEdit" class="btn btn-secondary d-none">Cancel</button>
     </form>
 
     <div>
@@ -36,8 +39,7 @@
         <thead>
             <tr id="todoTableHeader" style="user-select: none; cursor: pointer;">
                 <th scope="col" data-sort-key="title">Title <span class="sort-indicator" id="sort-title"></span></th>
-                <th scope="col" data-sort-key="userId">User ID <span class="sort-indicator" id="sort-userId"></span>
-                </th>
+                <th scope="col" data-sort-key="username">User <span class="sort-indicator" id="sort-username"></span></th>
                 <th scope="col">Completed</th>
                 <th scope="col">Actions</th>
             </tr>

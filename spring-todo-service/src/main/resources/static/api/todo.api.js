@@ -44,3 +44,19 @@ export async function deleteTodo(id) {
     });
     await ensureOk(response, "Failed to delete todo");
 }
+
+export async function completeTodo(id) {
+    const response = await fetch(`${BASE_URL_TODOS}/${id}/complete`, {
+        method: "PATCH"
+    });
+    await ensureOk(response, "Failed to complete todo");
+    return await response.json();
+}
+
+export async function reopenTodo(id) {
+    const response = await fetch(`${BASE_URL_TODOS}/${id}/reopen`, {
+        method: "PATCH"
+    });
+    await ensureOk(response, "Failed to reopen todo");
+    return await response.json();
+}
