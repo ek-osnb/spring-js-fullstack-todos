@@ -56,6 +56,17 @@ public class TodoService {
         return todoViews;
     }
 
+    @Transactional(readOnly = true)
+    public List<TodoView> findByUserId(Long userId) {
+        userService.findEntityById(userId); // throws NotFoundException for unknown users
+        List<Todo> todos = todoRepository.findByUserId(userId);
+        List<TodoView> todoViews = new ArrayList<>();
+        for (Todo todo : todos) {
+            todoViews.add(TodoView.from(todo));
+        }
+        return todoViews;
+    }
+
     public TodoView complete(Long id) {
         Todo todo = findTodo(id);
         todo.complete();

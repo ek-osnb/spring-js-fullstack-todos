@@ -92,6 +92,29 @@ class TodoServiceTest {
     }
 
     @Test
+    void findByUserIdShouldMapUsersTodos() {
+        User user = user(1L);
+        when(userService.findEntityById(1L)).thenReturn(user);
+        when(todoRepository.findByUserId(1L)).thenReturn(List.of(
+                todo(1L, user, "First"),
+                todo(2L, user, "Second")
+        ));
+
+        List<TodoView> result = todoService.findByUserId(1L);
+
+        assertEquals(2, result.size());
+        assertEquals("First", result.get(0).title());
+        assertEquals(1L, result.get(1).userId());
+    }
+
+    @Test
+    void findByUserIdShouldRejectMissingUser() {
+        when(userService.findEntityById(99L)).thenThrow(new NotFoundException("User with id 99 not found"));
+
+        assertThrows(NotFoundException.class, () -> todoService.findByUserId(99L));
+    }
+
+    @Test
     void completeShouldMarkTodoComplete() {
         Todo todo = todo(11L, user(1L), "Write tests");
         when(todoRepository.findById(11L)).thenReturn(Optional.of(todo));
