@@ -6,11 +6,6 @@ export function sortBy(key, isAsc = true) {
 
         if (typeof aVal === "string" && typeof bVal === "string") {
             const result = aVal.localeCompare(bVal);
-            // if (isAsc) {
-            //     return result;
-            // } else {
-            //     return -result;
-            // }
             return isAsc ? result : -result;
         }
 
